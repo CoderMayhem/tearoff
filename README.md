@@ -23,7 +23,8 @@ as you go. There is no way to tear ahead, and nothing to dismiss.
 ## Install
 
 **Download** the latest `Tearoff.zip` from [Releases](https://github.com/CoderMayhem/tearoff/releases),
-unzip, and drag `Tearoff.app` to `/Applications`.
+unzip, and drag `Tearoff.app` to `/Applications`. It's a universal binary — Apple silicon and
+Intel, macOS 14 Sonoma or later.
 
 The app is ad-hoc signed, not notarised — Apple charges $99/year for that — so macOS will
 refuse to open it on the first try. Either right-click the app → **Open** → **Open**, or:
@@ -41,7 +42,7 @@ cd tearoff
 ```
 
 Needs the Swift toolchain from Xcode (`xcode-select --install` is not enough — the app links
-SwiftUI). macOS 14 Sonoma or later.
+SwiftUI).
 
 ## Using it
 
@@ -108,8 +109,9 @@ If you enabled **Open at Login**, remove it in System Settings → General → L
 
 ```bash
 swift test                                  # 30 tests over the model and store
-swift build -c release                      # binary only
-./build.sh                                  # → dist/Tearoff.app
+./build.sh                                  # → dist/Tearoff.app, universal
+./build.sh --fast                           # this machine's architecture only, for iteration
+./build.sh --install                        # replace /Applications/Tearoff.app and launch
 TEAROFF_SHOT=docs/pads.png swift run -c release Tearoff   # regenerate the README screenshot
 ```
 

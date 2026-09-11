@@ -6,8 +6,10 @@ Small tool, small rules.
 
 ```bash
 swift test          # must stay green
-./build.sh          # must produce a launchable dist/Tearoff.app
+./build.sh          # must produce a launchable, universal dist/Tearoff.app
 ```
+
+`./build.sh --fast` skips the Intel slice while you iterate; releases are always universal.
 
 If you changed anything visible, regenerate the screenshot so the README matches:
 

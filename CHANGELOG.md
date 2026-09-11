@@ -21,5 +21,6 @@ First release.
   screen if their saved origin no longer exists.
 - JSON persistence in `~/Library/Application Support/Tearoff/pads.json`, with an unreadable
   file moved to `pads.json.corrupt` rather than overwritten.
+- Universal binary: Apple silicon and Intel, macOS 14 or later.
 
 [1.0.0]: https://github.com/CoderMayhem/tearoff/releases/tag/v1.0.0
