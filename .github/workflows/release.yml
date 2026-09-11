@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test
+        run: swift test
+
+      - name: Build app bundle
+        run: TEAROFF_VERSION="${GITHUB_REF_NAME#v}" ./build.sh
+
+      - name: Package
+        id: package
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          cd dist
+          ditto -c -k --sequesterRsrc --keepParent Tearoff.app "Tearoff-$VERSION.zip"
+          SHA=$(shasum -a 256 "Tearoff-$VERSION.zip" | cut -d ' ' -f 1)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.package.outputs.version }}
+          SHA: ${{ steps.package.outputs.sha }}
+        run: |
+          set -euo pipefail
+          cat > notes.md <<EOF
+          ## Install
+
+          Unzip and drag \`Tearoff.app\` to \`/Applications\`.
+
+          The app is ad-hoc signed, not notarised, so macOS quarantines it on first open.
+          Either right-click the app → **Open** → **Open**, or run:
+
+          \`\`\`bash
+          xattr -dr com.apple.quarantine /Applications/Tearoff.app
+          \`\`\`
+
+          Requires macOS 14 or later. Building from source (\`./build.sh --install\`) avoids
+          the quarantine step entirely.
+
+          \`\`\`
+          SHA-256  $SHA
+          \`\`\`
+
+          See [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/main/CHANGELOG.md) for what changed.
+          EOF
+          gh release create "$GITHUB_REF_NAME" \
+            "dist/Tearoff-$VERSION.zip" \
+            --title "Tearoff $VERSION" \
+            --notes-file notes.md

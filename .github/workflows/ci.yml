@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test and build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          swift --version
+          sw_vers
+
+      - name: Test
+        run: swift test
+
+      - name: Build app bundle
+        run: ./build.sh
+
+      - name: Check the bundle is sane
+        run: |
+          set -euo pipefail
+          test -x dist/Tearoff.app/Contents/MacOS/Tearoff
+          test -f dist/Tearoff.app/Contents/Info.plist
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' dist/Tearoff.app/Contents/Info.plist
+          /usr/libexec/PlistBuddy -c 'Print :LSUIElement' dist/Tearoff.app/Contents/Info.plist
+          codesign --verify --verbose=2 dist/Tearoff.app
+
+      - name: Confirm the app makes no network calls
+        run: |
+          set -euo pipefail
+          if grep -rnE 'URLSession|NWConnection|CFStream|Network\.framework' Sources/; then
+            echo "::error::networking symbol found — Tearoff is meant to be entirely offline"
+            exit 1
+          fi
+          echo "no networking symbols in Sources/"

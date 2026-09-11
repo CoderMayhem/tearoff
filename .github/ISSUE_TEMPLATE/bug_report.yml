@@ -1,0 +1,45 @@
+name: Bug report
+description: Something in Tearoff misbehaves
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "14.6 / 15.2 / 26.5"
+    validations:
+      required: true
+  - type: input
+    id: tearoff
+    attributes:
+      label: Tearoff version
+      description: Menu bar → the app, or the version in Finder's Get Info panel.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options:
+        - Downloaded release zip
+        - Built from source
+    validations:
+      required: true
+  - type: checkboxes
+    id: context
+    attributes:
+      label: Anything relevant here?
+      options:
+        - label: More than one display
+        - label: More than one Space / Mission Control desktop
+        - label: A full-screen app was open
+        - label: Stage Manager is on
+        - label: "Keep Pads On Top is enabled"
